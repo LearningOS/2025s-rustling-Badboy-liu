@@ -12,7 +12,6 @@
 //
 // Execute `rustlings hint cow1` or use the `hint` watch subcommand for a hint.
 
-// I AM NOT DONE
 
 use std::borrow::Cow;
 
@@ -36,8 +35,14 @@ mod tests {
         // Clone occurs because `input` needs to be mutated.
         let slice = [-1, 0, 1];
         let mut input = Cow::from(&slice[..]);
+        if let Cow::Owned(_) = abs_all(&mut input) {
+            println!("reference_mutation Owned");
+        }
         match abs_all(&mut input) {
-            Cow::Owned(_) => Ok(()),
+            Cow::Owned(_) => {
+                println!("Owned");
+                Ok(())
+            },
             _ => Err("Expected owned value"),
         }
     }
@@ -47,8 +52,16 @@ mod tests {
         // No clone occurs because `input` doesn't need to be mutated.
         let slice = [0, 1, 2];
         let mut input = Cow::from(&slice[..]);
+
         match abs_all(&mut input) {
-            // TODO
+           Cow::Owned(_) => {
+               Ok(())
+           },
+           Cow::Borrowed(_) => {
+               println!("Borrowed");
+               Ok(())
+           },
+            _ => Err("Expected owned value"),
         }
     }
 
@@ -59,8 +72,15 @@ mod tests {
         // still owned because it was never borrowed or mutated.
         let slice = vec![0, 1, 2];
         let mut input = Cow::from(slice);
+        if let Cow::Owned(_) = abs_all(&mut input) {
+            println!("owned_no_mutation Owned");
+        }
         match abs_all(&mut input) {
-            // TODO
+            Cow::Owned(_) => {
+                println!("Owned");
+                Ok(())
+            },
+            _ => Err("Expected owned value"),
         }
     }
 
@@ -71,8 +91,12 @@ mod tests {
         // before.
         let slice = vec![-1, 0, 1];
         let mut input = Cow::from(slice);
+        if let Cow::Owned(_) = abs_all(&mut input) {
+            println!("owned_mutation Owned");
+        }
         match abs_all(&mut input) {
-            // TODO
+            Cow::Owned(_) => Ok(()),
+            _ => Err("Expected owned value"),
         }
     }
 }

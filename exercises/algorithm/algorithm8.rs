@@ -2,7 +2,6 @@
 	queue
 	This question requires you to use queues to implement the functionality of the stac
 */
-// I AM NOT DONE
 
 #[derive(Debug)]
 pub struct Queue<T> {
@@ -51,7 +50,7 @@ impl<T> Default for Queue<T> {
         }
     }
 }
-
+#[derive(Debug)]
 pub struct myStack<T>
 {
 	//TODO
@@ -67,15 +66,31 @@ impl<T> myStack<T> {
         }
     }
     pub fn push(&mut self, elem: T) {
-        //TODO
+
+        if self.q1.is_empty() && self.q2.is_empty() {
+            self.q1.enqueue(elem);
+        }else if self.q1.is_empty() {
+            self.q2.enqueue(elem);
+        }else {
+            self.q1.enqueue(elem);
+        }
     }
     pub fn pop(&mut self) -> Result<T, &str> {
-        //TODO
-		Err("Stack is empty")
+        if self.is_empty() {
+            return Err("Stack is empty");
+        }
+
+        while self.q1.size() > 1 {
+            let elem = self.q1.dequeue().unwrap();
+            self.q2.enqueue(elem);
+        }
+
+        let last_elem = self.q1.dequeue().unwrap();
+        std::mem::swap(&mut self.q1, &mut self.q2);
+        Ok(last_elem)
     }
     pub fn is_empty(&self) -> bool {
-		//TODO
-        true
+		self.q1.is_empty() && self.q2.is_empty()
     }
 }
 
@@ -90,6 +105,8 @@ mod tests {
         s.push(1);
         s.push(2);
         s.push(3);
+
+        println!("{:?}", s);
         assert_eq!(s.pop(), Ok(3));
         assert_eq!(s.pop(), Ok(2));
         s.push(4);

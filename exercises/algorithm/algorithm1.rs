@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -29,13 +28,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T:Clone+PartialOrd> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: Clone+ std::cmp::PartialOrd> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -71,47 +70,34 @@ impl<T> LinkedList<T> {
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-        if list_a.length==0 {
-            return list_b;
-        }
-        if list_b.length==0 {
-            return list_a;
-        }
-        let  startA=list_a.start.unwrap().as_ptr();
-        let endA=list_a.start.unwrap().as_ptr();
-        let  startB=list_b.start.unwrap().as_ptr();
-        let endB=list_b.start.unwrap().as_ptr();
         let mut m = LinkedList::<T>::new();
-        while  list_a.length>0 || list_b.length>0{
-            if list_a.length>0&&list_b.length>0 {
-                if startA.val<startB.val {
-                    m.add(startA);
-                    startA = startA.next;
-                    list_a.length = list_a.length-1;
-                }else {
-                    m.add(startB);
-                    startB = startB.next;
-                    list_b.length = list_b.length-1;
-                }
-            }else if list_b.length>0{
-                match startB.val {
-                    _ => {},
-                    (t)=>m.add(t),
-                }
-                startB =startB.next;
-                list_b.length = list_b.length - 1;
-            }else if  list_a.length>0 {
-                match startA.val {
-                    _ => {},
-                    (t)=>m.add(t),
-                }
-                startA =startA.next;
-                list_a.length = list_a.length - 1;
-            }else {
-                break
+        let mut current_a = list_a.start;
+        let mut current_b = list_b.start;
+
+        while current_a.is_some() && current_b.is_some() {
+            let val_a = unsafe { &(*current_a.unwrap().as_ptr()).val };
+            let val_b = unsafe { &(*current_b.unwrap().as_ptr()).val };
+            if val_a < val_b {
+                m.add(val_a.clone()); // 使用 clone 来复制值
+                current_a = unsafe { (*current_a.unwrap().as_ptr()).next };
+            } else {
+                m.add(val_b.clone()); // 使用 clone 来复制值
+                current_b = unsafe { (*current_b.unwrap().as_ptr()).next };
             }
         }
-		m
+
+        // 处理剩余的节点
+        while let Some(node_ptr) = current_a {
+            m.add(unsafe { (*node_ptr.as_ptr()).val.clone() });
+            current_a = unsafe { (*node_ptr.as_ptr()).next };
+        }
+
+        while let Some(node_ptr) = current_b {
+            m.add(unsafe { (*node_ptr.as_ptr()).val.clone() });
+            current_b = unsafe { (*node_ptr.as_ptr()).next };
+        }
+
+        m
 	}
 }
 
